@@ -109,5 +109,11 @@ namespace BonusOkAPI.Controllers
         {
             return _context.Cards.Any(e => e.Id == id);
         }
+        
+        [HttpGet("test")]
+        public ActionResult<String> Work()
+        {
+            return "Hello world";
+        }
     }
 }

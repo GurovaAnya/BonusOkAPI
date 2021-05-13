@@ -24,7 +24,8 @@
       "launchUrl": "swagger",
       "applicationUrl": "https://localhost:5001;http://localhost:5000",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "CLEARDB_DATABASE_URL": "mysql://b49715331e90f3:101f62d2@eu-cdbr-west-01.cleardb.com/heroku_e5b4723a7afaa1f?reconnect=true"
       }
     }
   }
