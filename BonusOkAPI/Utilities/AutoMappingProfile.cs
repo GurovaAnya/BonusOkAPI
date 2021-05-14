@@ -1,3 +1,4 @@
+using System;
 using AutoMapper;
 using BonusOkAPI.Contracts;
 using BonusOkAPI.Models;

@@ -83,6 +83,7 @@ namespace BonusOkAPI.Controllers
         public async Task<ActionResult<CardResponse>> PostCard(CardRequest card)
         {
             var cardEntity = _mapper.Map<CardRequest, Card>(card);
+            cardEntity.CardCode = Card.GenerateCode();
             _context.Cards.Add(cardEntity);
             await _context.SaveChangesAsync();
 
