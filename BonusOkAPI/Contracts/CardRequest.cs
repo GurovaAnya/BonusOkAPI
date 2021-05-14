@@ -8,6 +8,5 @@ namespace BonusOkAPI.Contracts
         public int BonusQuantity { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-        public int CardCode { get; set; }
     }
 }
