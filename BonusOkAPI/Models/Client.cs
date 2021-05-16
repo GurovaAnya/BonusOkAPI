@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BonusOkAPI.Models
 {
-    public class Client
+    public class Client 
     {
         [Key]
         public int Id { get; set; }
@@ -16,6 +16,10 @@ namespace BonusOkAPI.Models
         public DateTime Birthdate { get; set; }
         
         public int CardId { get; set; }
+        public int? AuthCode { get; set; }
+        public DateTime? AuthCodeDeathTime { get; set; }
+        
+        
         [ForeignKey(nameof(CardId))]
         [InverseProperty("Client")]
         public virtual Card Card { get; set; }
