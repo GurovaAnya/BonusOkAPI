@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BonusOkAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BonusOkAPI.Controllers
 {
@@ -33,46 +34,58 @@ namespace BonusOkAPI.Controllers
         }
 
         // GET: api/ClientConroller/5
+        //[Authorize(Roles = Models.Client.Role)]
         [HttpGet("{id}")]
-        public async Task<ActionResult<ClientResponse>> GetClient(int id)
+        public async Task<ActionResult<ClientResponse>> GetClient([FromHeader(Name = "Authorization")]string JWT, int id)
         {
-            var client = await _context.Clients.FindAsync(id);
+            var client = RightCredentials(id).Result;
 
             if (client == null)
             {
-                return NotFound();
+                return BadRequest();
             }
 
             return Ok(_mapper.Map<Client, ClientResponse>(client));
         }
         
         // GET: api/ClientConroller/5/Promo
+        //[Authorize(Roles = Models.Client.Role)]
         [HttpGet("{id}/Promo")]
-        public async Task<ActionResult<IEnumerable<PromoResponse>>> GetClientsPromos(int id)
+        public async Task<ActionResult<IEnumerable<PromoResponse>>> GetClientsPromos([FromHeader(Name = "Authorization")]string JWT,int id)
         {
+            if (RightCredentials(id).Result == null)
+            {
+                return BadRequest();
+            }
+            
             var data = await _context.Clients
                 .Where(c => c.Id == id)
                 .Include(c => c.Promos)
                 .SelectMany(c => c.Promos)
-                .Where(c => c.StartDate >= DateTime.Now)
                 .ToArrayAsync();
             return Ok(_mapper.Map<IEnumerable<Promo>, IEnumerable<PromoResponse>>(data));
         }
         
         // GET: api/ClientConroller/5/Promo/1
+        //[Authorize(Roles = Models.Client.Role)]
         [HttpGet("{id}/Promo/{promoId}")]
-        public async Task<ActionResult<PromoResponse>> GetClientsPromos(int id, int promoId)
+        public async Task<ActionResult<PromoResponse>> GetClientsPromos([FromHeader(Name = "Authorization")]string JWT, int id, int promoId)
         {
+            var client = RightCredentials(id).Result;
+            
+            if (client == null)
+            {
+                return BadRequest();
+            }
+            
             var promo = await _context.Promos.FindAsync(promoId);
             
             if (promo == null)
             {
                 return NotFound();
             }
-            
-            var client = promo.Clients.FindAsync(id);
-            
-            if (client.Result == null)
+
+            if (!client.Promos.Contains(promo))
             {return NotFound();}
 
             return _mapper.Map<Promo, PromoResponse>(promo);
@@ -81,13 +94,16 @@ namespace BonusOkAPI.Controllers
 
         // PUT: api/ClientConroller/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        //[Authorize(Roles = Models.Client.Role)]
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutClient(int id, ClientRequest client)
+        public async Task<IActionResult> PutClient([FromHeader(Name = "Authorization")]string JWT, int id, ClientRequest client)
         {
-            if (id != client.Id)
+            
+            if (id != client.Id || RightCredentials(id).Result == null)
             {
                 return BadRequest();
             }
+
 
             _context.Entry(_mapper.Map<ClientRequest, Client>(client)).State = EntityState.Modified;
 
@@ -111,7 +127,6 @@ namespace BonusOkAPI.Controllers
         }
 
         // POST: api/ClientConroller
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<Client>> PostClient(ClientRequest client)
         {
@@ -127,13 +142,15 @@ namespace BonusOkAPI.Controllers
         }
 
         // DELETE: api/ClientConroller/5
+        //[Authorize(Roles = Models.Client.Role)]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteClient(int id)
+        public async Task<IActionResult> DeleteClient([FromHeader(Name = "Authorization")]string JWT, int id)
         {
-            var client = await _context.Clients.FindAsync(id);
+            var client = RightCredentials(id).Result;
+
             if (client == null)
             {
-                return NotFound();
+                return BadRequest();
             }
 
             _context.Clients.Remove(client);
@@ -145,6 +162,14 @@ namespace BonusOkAPI.Controllers
         private bool ClientExists(int id)
         {
             return _context.Clients.Any(e => e.Id == id);
+        }
+
+        private async Task<Client> RightCredentials(int clientId)
+        {
+            var client =  await _context.Clients
+                .FirstOrDefaultAsync(c => /*c.Phone == User.Identity.Name && */c.Id == clientId);
+
+            return client;
         }
     }
 }
