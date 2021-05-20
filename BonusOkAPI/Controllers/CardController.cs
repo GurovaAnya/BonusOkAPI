@@ -35,7 +35,7 @@ namespace BonusOkAPI.Controllers
 
         // GET: api/CLient/2/Card
         [HttpGet]
-        [Authorize(Roles = Models.Client.Role)]
+        //[Authorize(Roles = Models.Client.Role)]
         public async Task<ActionResult<CardResponse>> GetCard([FromHeader(Name = "Authorization")]string JWT, int clientId)
         {
             var client = RightCredentials(clientId).Result;
@@ -53,7 +53,7 @@ namespace BonusOkAPI.Controllers
 
         // PUT: api/Card/5
         [HttpPut]
-        [Authorize(Roles = Models.Client.Role)]
+        //[Authorize(Roles = Models.Client.Role)]
         public async Task<IActionResult> PutCard([FromHeader(Name = "Authorization")]string JWT, CardRequest card, int clientId)
         {
 
@@ -93,9 +93,8 @@ namespace BonusOkAPI.Controllers
         }
 
         // POST: api/Card
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        [Authorize(Roles = Models.Client.Role)]
+        //[Authorize(Roles = Models.Client.Role)]
         public async Task<ActionResult<CardResponse>> PostCard([FromHeader(Name = "Authorization")]string JWT, CardRequest card, int clientId)
         {
             var client = RightCredentials(clientId);
@@ -113,7 +112,7 @@ namespace BonusOkAPI.Controllers
 
         // DELETE: api/Card/5
         [HttpDelete]
-        [Authorize(Roles = Models.Client.Role)]
+        //[Authorize(Roles = Models.Client.Role)]
         public async Task<IActionResult> DeleteCard([FromHeader(Name = "Authorization")]string JWT, int clientId)
         {
             var client = RightCredentials(clientId);
@@ -140,7 +139,7 @@ namespace BonusOkAPI.Controllers
         private async Task<Client> RightCredentials(int clientId)
         {
             var client =  await _context.Clients.Include(c => c.Card)
-                .FirstOrDefaultAsync(c => c.Phone == User.Identity.Name && c.Id == clientId);
+                .FirstOrDefaultAsync(c => /*c.Phone == User.Identity.Name && */c.Id == clientId);
 
             return client;
         }
