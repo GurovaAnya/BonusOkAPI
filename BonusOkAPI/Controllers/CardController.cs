@@ -8,10 +8,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BonusOkAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BonusOkAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/Client/{clientId}/Card")]
     [ApiController]
     public class CardController : ControllerBase
     {
@@ -24,39 +25,53 @@ namespace BonusOkAPI.Controllers
             _mapper = mapper;
         }
 
-        // GET: api/Card
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<CardResponse>>> GetCards()
+        /*// GET: api/Client/1/Card
+        [HttpGet()]
+        public async Task<ActionResult<IEnumerable<CardResponse>>> GetCards( )
         {
             var data = await _context.Cards.ToListAsync();
             return  Ok(_mapper.Map<IEnumerable<Card>, IEnumerable<CardResponse>>(data));
-        }
+        }*/
 
-        // GET: api/Card/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<CardResponse>> GetCard(int id)
+        // GET: api/CLient/2/Card
+        [HttpGet]
+        [Authorize(Roles = Models.Client.Role)]
+        public async Task<ActionResult<CardResponse>> GetCard([FromHeader(Name = "Authorization")]string JWT, int clientId)
         {
-            var card = await _context.Cards.FindAsync(id);
+            var client = RightCredentials(clientId).Result;
+            if (client == null)
+                return BadRequest();
+            
 
-            if (card == null)
+            if (client.Card == null)
             {
                 return NotFound();
             }
 
-            return Ok(_mapper.Map<Card, CardResponse>(card));
+            return Ok(_mapper.Map<Card, CardResponse>(client.Card));
         }
 
         // PUT: api/Card/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutCard(int id, CardRequest card)
+        [HttpPut]
+        [Authorize(Roles = Models.Client.Role)]
+        public async Task<IActionResult> PutCard([FromHeader(Name = "Authorization")]string JWT, CardRequest card, int clientId)
         {
-            if (id != card.Id)
-            {
-                return BadRequest();
-            }
 
-            _context.Entry(_mapper.Map<CardRequest, Card>(card)).State = EntityState.Modified;
+            var client = RightCredentials(clientId).Result;
+
+            if (client == null)
+                return BadRequest();
+
+            var cardEntity = client.Card;
+
+            if (cardEntity == null)
+                return NotFound();
+
+            cardEntity.StartDate = card.StartDate;
+            cardEntity.EndDate = card.EndDate;
+            cardEntity.BonusQuantity = card.BonusQuantity;
+            
+            _context.Entry(cardEntity).State = EntityState.Modified;
 
             try
             {
@@ -64,7 +79,7 @@ namespace BonusOkAPI.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!CardExists(id))
+                if (!CardExists(cardEntity.Id))
                 {
                     return NotFound();
                 }
@@ -80,21 +95,32 @@ namespace BonusOkAPI.Controllers
         // POST: api/Card
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<CardResponse>> PostCard(CardRequest card)
+        [Authorize(Roles = Models.Client.Role)]
+        public async Task<ActionResult<CardResponse>> PostCard([FromHeader(Name = "Authorization")]string JWT, CardRequest card, int clientId)
         {
+            var client = RightCredentials(clientId);
+            if (client.Result == null)
+                return BadRequest();
+            client.Result.CardId = clientId;
             var cardEntity = _mapper.Map<CardRequest, Card>(card);
             cardEntity.CardCode = Card.GenerateCode();
             _context.Cards.Add(cardEntity);
+            _context.Entry(client).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetCard", new { id = card.Id }, _mapper.Map<Card, CardResponse>(cardEntity));
+            return CreatedAtAction("GetCard", new { id = client.Result.CardId }, _mapper.Map<Card, CardResponse>(cardEntity));
         }
 
         // DELETE: api/Card/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCard(int id)
+        [HttpDelete]
+        [Authorize(Roles = Models.Client.Role)]
+        public async Task<IActionResult> DeleteCard([FromHeader(Name = "Authorization")]string JWT, int clientId)
         {
-            var card = await _context.Cards.FindAsync(id);
+            var client = RightCredentials(clientId);
+            if (client.Result == null)
+                return BadRequest();
+            
+            var card = client.Result.Card;
             if (card == null)
             {
                 return NotFound();
@@ -110,11 +136,13 @@ namespace BonusOkAPI.Controllers
         {
             return _context.Cards.Any(e => e.Id == id);
         }
-        
-        [HttpGet("test")]
-        public ActionResult<String> Work()
+
+        private async Task<Client> RightCredentials(int clientId)
         {
-            return "Hello world";
+            var client =  await _context.Clients.Include(c => c.Card)
+                .FirstOrDefaultAsync(c => c.Phone == User.Identity.Name && c.Id == clientId);
+
+            return client;
         }
     }
 }

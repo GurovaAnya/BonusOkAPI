@@ -5,8 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BonusOkAPI.Models
 {
-    public class Client 
+    public class Client
     {
+        public const string Role = "Client";
         [Key]
         public int Id { get; set; }
         public string Phone { get; set; }

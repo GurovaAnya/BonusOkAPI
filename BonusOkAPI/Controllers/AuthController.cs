@@ -69,7 +69,7 @@ namespace BonusOkAPI.Controllers
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimsIdentity.DefaultNameClaimType, person.Phone),
-                    new Claim(ClaimsIdentity.DefaultRoleClaimType, "CLIENT"),
+                    new Claim(ClaimsIdentity.DefaultRoleClaimType, Models.Client.Role),
                 };
                 ClaimsIdentity claimsIdentity =
                     new ClaimsIdentity(claims, "Token", ClaimsIdentity.DefaultNameClaimType,
@@ -143,6 +143,12 @@ namespace BonusOkAPI.Controllers
                     client.AuthCode,
                     client.AuthCodeDeathTime
                 });
+        }
+        
+        [HttpGet("test")]
+        public ActionResult<String> Work()
+        {
+            return "Hello world";
         }
     }
 }
