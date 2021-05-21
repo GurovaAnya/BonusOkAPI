@@ -73,7 +73,7 @@ namespace BonusOkAPI.Controllers
                 .Where(c => c.Id == id)
                 .Include(c => c.Promos)
                 .SelectMany(c => c.Promos)
-                .Where(c => c.StartDate >= DateTime.Now)
+                .Where(c => c.EndDate >= DateTime.Now)
                 .ToArrayAsync();
             return Ok(_mapper.Map<IEnumerable<Promo>, IEnumerable<PromoResponse>>(data));
         }
