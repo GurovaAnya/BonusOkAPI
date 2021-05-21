@@ -27,5 +27,7 @@ namespace BonusOkAPI.Models
         
         [InverseProperty("Clients")]
         public virtual DbSet<Promo> Promos { get; set; }
+        
+        public virtual DbSet<Device> Devices { get; set; }
     }
 }
