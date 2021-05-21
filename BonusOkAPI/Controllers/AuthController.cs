@@ -107,6 +107,8 @@ namespace BonusOkAPI.Controllers
                 BonusQuantity = 0,
                 StartDate = DateTime.Now,
             };
+            
+            card.CardCode = Card.GenerateCode();
 
             try
             {
@@ -119,7 +121,7 @@ namespace BonusOkAPI.Controllers
                 _context.Clients.Add(client);
                 await SaveCode(client);
             }
-            catch (SqlException exception)
+            catch (DbUpdateException exception)
             {
                 return Conflict("Клиент с таким телефоном уже существует");
             }
