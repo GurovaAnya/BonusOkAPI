@@ -22,6 +22,10 @@ namespace BonusOkAPI.Controllers
         }
 
         // GET: api/Promo
+        /// <summary>
+        /// Создано для тестовых целей, не использовать в приложении
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Promo>>> GetPromos()
         {
@@ -29,6 +33,10 @@ namespace BonusOkAPI.Controllers
         }
 
         // GET: api/Promo/5
+        /// <summary>
+        /// Создано для тестовых целей, не использовать в приложении
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("{id}")]
         public async Task<ActionResult<Promo>> GetPromo(int id)
         {
@@ -43,7 +51,10 @@ namespace BonusOkAPI.Controllers
         }
 
         // PUT: api/Promo/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        /// <summary>
+        /// Создано для тестовых целей, не использовать в приложении
+        /// </summary>
+        /// <returns></returns>
         [HttpPut("{id}")]
         public async Task<IActionResult> PutPromo(int id, Promo promo)
         {
@@ -74,7 +85,10 @@ namespace BonusOkAPI.Controllers
         }
 
         // POST: api/Promo
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        /// <summary>
+        /// Создано для тестовых целей, не использовать в приложении
+        /// </summary>
+        /// <returns></returns>
         [HttpPost]
         public async Task<ActionResult<Promo>> PostPromo(Promo promo)
         {
@@ -85,6 +99,10 @@ namespace BonusOkAPI.Controllers
         }
 
         // DELETE: api/Promo/5
+        /// <summary>
+        /// Создано для тестовых целей, не использовать в приложении
+        /// </summary>
+        /// <returns></returns>
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePromo(int id)
         {

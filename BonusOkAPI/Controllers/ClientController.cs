@@ -12,6 +12,13 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace BonusOkAPI.Controllers
 {
+    /// <summary>
+    /// Работа с картами клиентов
+    /// </summary>
+    /// <response code="403"> Токен неправильный </response>
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+
     [Route("api/[controller]")]
     [ApiController]
     public class ClientController : ControllerBase
@@ -26,6 +33,10 @@ namespace BonusOkAPI.Controllers
         }
 
         // GET: api/ClientConroller
+        /// <summary>
+        /// Создано для тестовых целей, не использовать в приложении
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ClientResponse>>> GetClients()
         {
@@ -62,6 +73,7 @@ namespace BonusOkAPI.Controllers
                 .Where(c => c.Id == id)
                 .Include(c => c.Promos)
                 .SelectMany(c => c.Promos)
+                .Where(c => c.StartDate >= DateTime.Now)
                 .ToArrayAsync();
             return Ok(_mapper.Map<IEnumerable<Promo>, IEnumerable<PromoResponse>>(data));
         }
@@ -77,23 +89,24 @@ namespace BonusOkAPI.Controllers
             {
                 return BadRequest();
             }
-            
-            var promo = await _context.Promos.FindAsync(promoId);
-            
-            if (promo == null)
+
+            var promo = _context.Promos.Include(p => p.Clients)
+                .Where(p => p.Id == id && p.Clients.Contains(client)).FirstOrDefaultAsync();
+
+            if (promo.Result == null)
             {
                 return NotFound();
             }
 
+            /*
             if (!client.Promos.Contains(promo))
-            {return NotFound();}
+            {return NotFound();}*/
 
-            return _mapper.Map<Promo, PromoResponse>(promo);
+            return _mapper.Map<Promo, PromoResponse>(promo.Result);
 
         }
 
         // PUT: api/ClientConroller/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         //[Authorize(Roles = Models.Client.Role)]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutClient([FromHeader(Name = "Authorization")]string JWT, int id, ClientRequest client)
@@ -103,8 +116,7 @@ namespace BonusOkAPI.Controllers
             {
                 return BadRequest();
             }
-
-
+            
             _context.Entry(_mapper.Map<ClientRequest, Client>(client)).State = EntityState.Modified;
 
             try
@@ -127,8 +139,12 @@ namespace BonusOkAPI.Controllers
         }
 
         // POST: api/ClientConroller
+        /// <summary>
+        /// Создано для тестовых целей, не использовать в приложении. Чтобы создать клиента используйте api/auth/register
+        /// </summary>
+        /// <returns></returns>
         [HttpPost]
-        public async Task<ActionResult<Client>> PostClient(ClientRequest client)
+        public async Task<ActionResult<ClientResponse>> PostClient(ClientRequest client)
         {
             var clientEntity = _mapper.Map<ClientRequest, Client>(client);
             var card = new Card(){Id = client.CardId};

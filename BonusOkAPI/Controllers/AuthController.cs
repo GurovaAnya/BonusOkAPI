@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
@@ -7,6 +8,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using BonusOkAPI.Models;
 using BonusOkAPI.Utilities;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -27,6 +29,8 @@ namespace BonusOkAPI.Controllers
         }
         
         [HttpPost("token")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Token(string number, int code)
         {
             var identity = GetIdentity(number, code);
@@ -81,30 +85,51 @@ namespace BonusOkAPI.Controllers
             return null;
         }
         
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="number"></param>
+        /// <returns></returns>
+        /// <response code ="400"> Неправильный формат номера </response>
+        /// <response code ="409"> Клиент с таким телефоном уже есть </response>
         [HttpPost("register")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<IActionResult> RegisterClient(string number)
         {
+            if (!number.All(char.IsDigit))
+                return BadRequest("Неправильный формат номера");
+            
             var card = new Card()
             {
                 BonusQuantity = 0,
                 StartDate = DateTime.Now,
             };
 
-            //_context.Cards.Add(card);
-            //await _context.SaveChangesAsync();
-
-            var client = new Client()
+            try
             {
-                Phone = number,
-                Card = card
-            };
+                var client = new Client()
+                {
+                    Phone = number,
+                    Card = card
+                };
 
-            _context.Clients.Add(client);
-            await SaveCode(client);
+                _context.Clients.Add(client);
+                await SaveCode(client);
+            }
+            catch (SqlException exception)
+            {
+                return Conflict("Клиент с таким телефоном уже существует");
+            }
+
             return Ok();
         }
                 
         [HttpGet("request_code")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> RequestAuthCode(string number)
         {
             var client = await _context.Clients.Where(c => c.Phone == number).FirstOrDefaultAsync();
@@ -125,11 +150,13 @@ namespace BonusOkAPI.Controllers
         
         
         /// <summary>
-        /// Код для входа клиента. Не использовать в приложении!!!!!
+        /// Метод для получения кода клиента. Не использовать в приложении!!!!!
         /// </summary>
         /// <param name="number">Номер телефона</param>
         /// <returns> </returns>
         [HttpGet("get_code_secret_request")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetCode(string number)
         {
             var client = await _context.Clients.Where(c => c.Phone == number).FirstOrDefaultAsync();

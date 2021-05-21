@@ -12,8 +12,18 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace BonusOkAPI.Controllers
 {
+    /// <summary>
+    /// Работа с картами клиентов
+    /// </summary>
+    /// <response code="400"> У клиента нет карты </response>
+    /// <response code="403"> Токен неправильный </response>
+    /// <response code="404"> Клиент не найден </response>
     [Route("api/Client/{clientId}/Card")]
     [ApiController]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public class CardController : ControllerBase
     {
         private readonly BonusOkContext _context;
@@ -51,9 +61,8 @@ namespace BonusOkAPI.Controllers
             return Ok(_mapper.Map<Card, CardResponse>(client.Card));
         }
 
-        // PUT: api/Card/5
-        [HttpPut]
-        //[Authorize(Roles = Models.Client.Role)]
+        // PUT: api/Client/2/Card/5
+        [HttpPut]//[Authorize(Roles = Models.Client.Role)]
         public async Task<IActionResult> PutCard([FromHeader(Name = "Authorization")]string JWT, CardRequest card, int clientId)
         {
 

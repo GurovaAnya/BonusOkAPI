@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using BonusOkAPI.Models;
 using Microsoft.AspNetCore.Builder;
@@ -16,12 +18,22 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using AutoMapper;
 using BonusOkAPI.Utilities;
+using Microsoft.Extensions.PlatformAbstractions;
 using Microsoft.IdentityModel.Tokens;
 
 namespace BonusOkAPI
 {
     public class Startup
     {
+        static string XmlCommentsFilePath
+        {
+            get
+            {
+                var basePath = PlatformServices.Default.Application.ApplicationBasePath;
+                var fileName = typeof(Startup).GetTypeInfo().Assembly.GetName().Name + ".xml";
+                return Path.Combine(basePath, fileName);
+            }
+        }
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -37,6 +49,7 @@ namespace BonusOkAPI
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "BonusOkAPI", Version = "v1" });
+                c.IncludeXmlComments(XmlCommentsFilePath);
             });
             var connectionString = Configuration.GetConnectionString("DefaultConnection") + Environment.GetEnvironmentVariable("DB_PASSWORD");
             services.AddDbContext<BonusOkContext>
