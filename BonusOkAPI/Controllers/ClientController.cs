@@ -147,7 +147,8 @@ namespace BonusOkAPI.Controllers
         public async Task<ActionResult<ClientResponse>> PostClient(ClientRequest client)
         {
             var clientEntity = _mapper.Map<ClientRequest, Client>(client);
-            var card = new Card(){Id = client.CardId};
+            clientEntity.CardId = Card.GenerateCode();
+            var card = new Card(){Id = clientEntity.CardId};
             _context.Attach(card);
             _context.Attach(clientEntity);
             clientEntity.Card = card;
