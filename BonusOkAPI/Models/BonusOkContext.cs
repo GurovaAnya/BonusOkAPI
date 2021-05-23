@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using BonusOkAPI.Models;
 
 namespace BonusOkAPI.Models
 {
@@ -14,5 +15,7 @@ namespace BonusOkAPI.Models
         public DbSet<Card> Cards { get; set; }
         
         public DbSet<Promo> Promos { get; set; }
+        
+        public DbSet<BonusOkAPI.Models.Device> Devices { get; set; }
     }
 }
