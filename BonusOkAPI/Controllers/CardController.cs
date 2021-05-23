@@ -62,7 +62,15 @@ namespace BonusOkAPI.Controllers
         }
 
         // PUT: api/Client/2/Card/5
-        [HttpPut]//[Authorize(Roles = Models.Client.Role)]
+        /// <summary>
+        /// Наверное, это тоже стоит убрать потом, потому что клиент обнаглеет от возможности изменить свой бонусный счет
+        /// </summary>
+        /// <param name="JWT"></param>
+        /// <param name="card"></param>
+        /// <param name="clientId"></param>
+        /// <returns></returns>
+        [HttpPut]
+        //[Authorize(Roles = Models.Client.Role)]
         public async Task<IActionResult> PutCard([FromHeader(Name = "Authorization")]string JWT, CardRequest card, int clientId)
         {
 

@@ -111,13 +111,20 @@ namespace BonusOkAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutClient([FromHeader(Name = "Authorization")]string JWT, int id, ClientRequest client)
         {
+            var clientEntity = RightCredentials(id).Result;
             
-            if (id != client.Id || RightCredentials(id).Result == null)
+            if (id != client.Id ||  clientEntity == null)
             {
                 return BadRequest();
             }
+
+            clientEntity.Birthdate = client.Birthdate;
+            clientEntity.Name = client.Name;
+            clientEntity.Surname = client.Surname;
+            clientEntity.Phone = client.Phone;
+            clientEntity.Email = client.Email;
             
-            _context.Entry(_mapper.Map<ClientRequest, Client>(client)).State = EntityState.Modified;
+            _context.Entry(clientEntity).State = EntityState.Modified;
 
             try
             {
