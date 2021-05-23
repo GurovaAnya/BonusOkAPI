@@ -50,18 +50,20 @@ namespace BonusOkAPI.Controllers
                 signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
             var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
  
-            var response = new
-            {
-                access_token = encodedJwt,
-                username = identity.Name
-            };
+            
             
             var client = await _context.Clients.Where(c => c.Phone == number).FirstOrDefaultAsync();
             
             client.AuthCode = null;
             client.AuthCodeDeathTime = null;
             await _context.SaveChangesAsync();
- 
+            
+            var response = new
+             {
+                 access_token = encodedJwt,
+                 username = identity.Name,
+                 user_id = client.Id
+             };
             return Ok(response);
         }
         
