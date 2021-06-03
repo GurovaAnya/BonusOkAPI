@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BonusOkAPI.Models;
+using FirebaseAdmin.Messaging;
 using Newtonsoft.Json;
 
 namespace BonusOkAPI.Controllers
@@ -49,10 +50,10 @@ namespace BonusOkAPI.Controllers
         // POST: api/SendPush/
         [HttpPost("SendPush")]
 
-        public async Task<ActionResult> SendPushToAll(string message)
+        public async Task<ActionResult> SendPushToAll(string title, string messageText)
         {
-            var registration_ids = _context.Devices.Select(d => d.Token).AsEnumerable().ToList();
-            var body = new {registration_ids, message};
+            var registrationIds = _context.Devices.Select(d => d.Token).AsEnumerable().ToList();
+            /*var body = new {registration_ids, message};
             var request = WebRequest.Create(pushUrl);
             request.Method = WebRequestMethods.Http.Post;
             request.ContentType = "application/json";
@@ -71,7 +72,21 @@ namespace BonusOkAPI.Controllers
             }
 
             httpResponse.Close();
-            return Ok();
+            return Ok();*/
+
+            var message = new MulticastMessage()
+                {
+                    Data = new Dictionary<string, string>()
+                    {
+                        {"title", title},
+                        {"message", messageText},
+                    },
+                    Tokens = registrationIds,
+                };
+            var response = await FirebaseMessaging.DefaultInstance.SendMulticastAsync(message);
+            
+            return Ok(response);
+
         }
     }
 }

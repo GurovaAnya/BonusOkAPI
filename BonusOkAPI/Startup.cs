@@ -17,7 +17,10 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using AutoMapper;
+using BonusOkAPI.Services;
 using BonusOkAPI.Utilities;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 using Microsoft.Extensions.PlatformAbstractions;
 using Microsoft.IdentityModel.Tokens;
 
@@ -70,6 +73,11 @@ namespace BonusOkAPI
                         ValidateIssuerSigningKey = true,
                     };
                 });
+            
+            FirebaseApp.Create(new AppOptions()
+            {
+                Credential = GoogleCredential.FromJson(Environment.GetEnvironmentVariable("GOOGLE_CLIENT_SECRETS")),
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
