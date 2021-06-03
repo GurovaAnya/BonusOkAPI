@@ -17,7 +17,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using AutoMapper;
-using BonusOkAPI.Services;
 using BonusOkAPI.Utilities;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
