@@ -32,7 +32,7 @@ namespace BonusOkAPI.Controllers
         public async Task<ActionResult> ChargeOff([FromHeader(Name = "Authorization")]string JWT, Charge charge)
         {
             var admin = RightCredentials(charge.AdminId);
-            if (!admin.Result.IsAdmin)
+            if (admin.Result == null || !admin.Result.IsAdmin)
                 return BadRequest("Вы не админ!");
 
             var client = _context.Cards.Where(c => c.CardCode == charge.CardCode).FirstOrDefaultAsync().Result;
@@ -64,7 +64,7 @@ namespace BonusOkAPI.Controllers
         public async Task<ActionResult> Award([FromHeader(Name = "Authorization")]string JWT, Charge charge)
         {
             var admin = RightCredentials(charge.AdminId);
-            if (!admin.Result.IsAdmin)
+            if (admin.Result == null || !admin.Result.IsAdmin)
                 return BadRequest("Вы не админ!");
 
             var client = _context.Cards.Where(c => c.CardCode == charge.CardCode).FirstOrDefaultAsync().Result;
