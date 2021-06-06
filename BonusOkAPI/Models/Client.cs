@@ -20,6 +20,7 @@ namespace BonusOkAPI.Models
         public int? AuthCode { get; set; }
         public DateTime? AuthCodeDeathTime { get; set; }
         
+        public bool IsAdmin { get; set; }
         
         [ForeignKey(nameof(CardId))]
         [InverseProperty("Client")]
