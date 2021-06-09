@@ -41,7 +41,23 @@ namespace BonusOkAPI.Controllers
                 Token = token
             };
 
+            var deviceInDb = await _context.Devices.Where(d => d.Token == token).FirstOrDefaultAsync();
+            if (deviceInDb != null)
+                _context.Remove(deviceInDb);
+
             _context.Devices.Add(device);
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
+        
+        // POST: api/Client/1/DeleteDevice/sometoken
+        [HttpPost("Client/{clientId}/DeleteDevice/{token}")]
+        public async Task<ActionResult> DeleteDevice(int clientId, string token)
+        {
+            var device = await _context.Devices.Where(d => d.Token == token).FirstOrDefaultAsync();
+            if(device == null) return NotFound();
+            _context.Devices.Remove(device);
             await _context.SaveChangesAsync();
 
             return Ok();
@@ -53,27 +69,7 @@ namespace BonusOkAPI.Controllers
         public async Task<ActionResult> SendPushToAll(string title, string messageText)
         {
             var registrationIds = _context.Devices.Select(d => d.Token).AsEnumerable().ToList();
-            /*var body = new {registration_ids, message};
-            var request = WebRequest.Create(pushUrl);
-            request.Method = WebRequestMethods.Http.Post;
-            request.ContentType = "application/json";
-            request.Headers.Add("Authorization", getPushHeaders());
-            string JsonData = JsonConvert.SerializeObject(body);
-            byte[] byteArray = System.Text.Encoding.UTF8.GetBytes(JsonData);
-            request.ContentLength = byteArray.Length;
-            System.IO.Stream dataStream = await request.GetRequestStreamAsync();
-            dataStream.Write(byteArray, 0, byteArray.Length);
-            dataStream.Close();
-            HttpWebResponse httpResponse = (HttpWebResponse)request.GetResponse();
-            string output = "";
-            using (System.IO.StreamReader reponse = new System.IO.StreamReader(httpResponse.GetResponseStream()))
-            {
-                output = reponse.ReadToEnd();
-            }
-
-            httpResponse.Close();
-            return Ok();*/
-
+            
             var message = new MulticastMessage()
                 {
                     Data = new Dictionary<string, string>()
