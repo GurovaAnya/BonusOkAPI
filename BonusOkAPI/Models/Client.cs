@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
@@ -27,8 +28,8 @@ namespace BonusOkAPI.Models
         public virtual Card Card { get; set; }
         
         [InverseProperty("Clients")]
-        public virtual DbSet<Promo> Promos { get; set; }
+        public virtual HashSet<Promo> Promos { get; set; }
         
-        public virtual DbSet<Device> Devices { get; set; }
+        public virtual HashSet<Device> Devices { get; set; }
     }
 }

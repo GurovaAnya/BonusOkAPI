@@ -62,7 +62,7 @@ namespace BonusOkAPI.Controllers
         // GET: api/ClientConroller/5/Promo
         //[Authorize(Roles = Models.Client.Role)]
         [HttpGet("{id}/Promo")]
-        public async Task<ActionResult<IEnumerable<PromoResponse>>> GetClientsPromos([FromHeader(Name = "Authorization")]string JWT,int id)
+        public async Task<ActionResult<IEnumerable<PromoResponseWithImage>>> GetClientsPromos([FromHeader(Name = "Authorization")]string JWT,int id)
         {
             if (RightCredentials(id).Result == null)
             {
@@ -75,13 +75,13 @@ namespace BonusOkAPI.Controllers
                 .SelectMany(c => c.Promos)
                 .Where(c => c.EndDate >= DateTime.Now)
                 .ToArrayAsync();
-            return Ok(_mapper.Map<IEnumerable<Promo>, IEnumerable<PromoResponse>>(data));
+            return Ok(_mapper.Map<IEnumerable<Promo>, IEnumerable<PromoResponseWithImage>>(data));
         }
         
         // GET: api/ClientConroller/5/Promo/1
         //[Authorize(Roles = Models.Client.Role)]
         [HttpGet("{id}/Promo/{promoId}")]
-        public async Task<ActionResult<PromoResponse>> GetClientsPromos([FromHeader(Name = "Authorization")]string JWT, int id, int promoId)
+        public async Task<ActionResult<PromoResponseWithImage>> GetClientsPromos([FromHeader(Name = "Authorization")]string JWT, int id, int promoId)
         {
             var client = RightCredentials(id).Result;
             
@@ -102,10 +102,10 @@ namespace BonusOkAPI.Controllers
             if (!client.Promos.Contains(promo))
             {return NotFound();}*/
 
-            return _mapper.Map<Promo, PromoResponse>(promo.Result);
+            return _mapper.Map<Promo, PromoResponseWithImage>(promo.Result);
 
         }
-
+        
         // PUT: api/ClientConroller/5
         //[Authorize(Roles = Models.Client.Role)]
         [HttpPut("{id}")]
@@ -144,7 +144,37 @@ namespace BonusOkAPI.Controllers
 
             return NoContent();
         }
+        
+        /// <summary>
+        /// Нужен для добавления акций. В приложении не используем
+        /// </summary>
+        /// <param name="JWT"></param>
+        /// <param name="id"></param>
+        /// <param name="promo"></param>
+        /// <returns></returns>
+        // POST: api/ClientConroller/Promo/clientId=1
+        [HttpPost("Promo")]
+        public async Task<ActionResult<PromoResponseWithImage>> AddClientsPromos([FromHeader(Name = "Authorization")]string JWT, PromoRequestWithImage promo, [FromQuery] int [] clientId)
+        {
 
+            var promoEntity = _mapper.Map<PromoRequestWithImage, Promo>(promo);
+            promoEntity.Clients = new HashSet<Client>();
+            foreach (var id in clientId)
+            {
+                var client = await _context.Clients.FindAsync(id);
+                if (client != null)
+                {
+                    promoEntity.Clients.Add(client);
+                }
+            }
+
+            _context.Promos.Add(promoEntity);
+            await _context.SaveChangesAsync();
+            
+            return _mapper.Map<Promo, PromoResponseWithImage>(promoEntity);
+
+        }
+        
         // POST: api/ClientConroller
         /// <summary>
         /// Создано для тестовых целей, не использовать в приложении. Чтобы создать клиента используйте api/auth/register

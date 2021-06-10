@@ -437,3 +437,5 @@ fabric.properties
 
 BonusOkAPI/appsettings.Development.json
 
+BonusOkAPI/Properties/launchSettings.json
+

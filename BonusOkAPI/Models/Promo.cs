@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +14,8 @@ namespace BonusOkAPI.Models
         public string Description { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
+        public byte [] Image { get; set; }
         [InverseProperty("Promos")]
-        public virtual DbSet<Client> Clients { get; set; }
+        public virtual HashSet<Client> Clients { get; set; }
     }
 }

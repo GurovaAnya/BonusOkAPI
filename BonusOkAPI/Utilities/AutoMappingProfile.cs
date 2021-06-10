@@ -15,6 +15,8 @@ namespace BonusOkAPI.Utilities
             CreateMap<ClientRequest, Client>();
             CreateMap<CardRequest, Card>();
             CreateMap<PromoRequest, Promo>();
+            CreateMap<PromoRequestWithImage, Promo>();
+            CreateMap<Promo, PromoResponseWithImage>();
         }
     }
 }
