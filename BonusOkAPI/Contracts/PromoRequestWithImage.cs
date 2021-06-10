@@ -2,6 +2,6 @@ namespace BonusOkAPI.Contracts
 {
     public class PromoRequestWithImage:PromoRequest
     {
-        public byte[] Image { get; set; }
+        public string Image { get; set; }
     }
 }

@@ -14,7 +14,7 @@ namespace BonusOkAPI.Models
         public string Description { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-        public byte [] Image { get; set; }
+        public string Image { get; set; }
         [InverseProperty("Promos")]
         public virtual HashSet<Client> Clients { get; set; }
     }
