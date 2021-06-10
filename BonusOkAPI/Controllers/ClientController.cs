@@ -70,7 +70,7 @@ namespace BonusOkAPI.Controllers
             }
             
             var data = await _context.Clients
-                .Where(c => c.Id == id)
+                .Where(c => c.Id == id || c.Id == -1)
                 .Include(c => c.Promos)
                 .SelectMany(c => c.Promos)
                 .Where(c => c.EndDate >= DateTime.Now)
