@@ -63,6 +63,31 @@ namespace BonusOkAPI.Controllers
             return Ok();
         }
         
+        // POST: api/Client/1/SendPush/
+        [HttpPost("Client/{clientId}/SendPush")]
+        public async Task<ActionResult> SendPushToClient(int clientId, string title, string messageText)
+        {
+            var registrationIds = _context.Devices.Where(d=>d.ClientId==clientId)
+                .Select(d => d.Token).AsEnumerable().ToList();
+
+            if (registrationIds.Count == 0)
+                return NotFound("Пользователь не существует или не авторизован ни на одном устройстве");
+            
+            var message = new MulticastMessage()
+            {
+                Data = new Dictionary<string, string>()
+                {
+                    {"title", title},
+                    {"message", messageText},
+                },
+                Tokens = registrationIds,
+            };
+            var response = await FirebaseMessaging.DefaultInstance.SendMulticastAsync(message);
+            
+            return Ok(response);
+
+        }
+        
         // POST: api/SendPush/
         [HttpPost("SendPush")]
 
