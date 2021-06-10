@@ -19,9 +19,9 @@ namespace BonusOkAPI.Controllers
     public class PushController : ControllerBase
     {
         private readonly BonusOkContext _context;
-        private readonly string pushUrl = "https://fcm.googleapis.com/fcm/send";
+        private readonly string _pushUrl = "https://fcm.googleapis.com/fcm/send";
 
-        private string getPushHeaders()
+        private string GetPushHeaders()
         {
             return "key=" + Environment.GetEnvironmentVariable("FIREBASE_API_KEY");
         }

@@ -49,7 +49,7 @@ namespace BonusOkAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<ClientResponse>> GetClient([FromHeader(Name = "Authorization")]string JWT, int id)
         {
-            var client = RightCredentials(id).Result;
+            var client = await RightCredentials(id);
 
             if (client == null)
             {
@@ -90,19 +90,19 @@ namespace BonusOkAPI.Controllers
                 return BadRequest();
             }
 
-            var promo = _context.Promos.Include(p => p.Clients)
+            var promo = await _context.Promos.Include(p => p.Clients)
                 .Where(p => p.Id == id && p.Clients.Contains(client)).FirstOrDefaultAsync();
 
-            if (promo.Result == null)
+            if (promo == null)
             {
                 return NotFound();
             }
-
+            
             /*
             if (!client.Promos.Contains(promo))
             {return NotFound();}*/
 
-            return _mapper.Map<Promo, PromoResponseWithImage>(promo.Result);
+            return _mapper.Map<Promo, PromoResponseWithImage>(promo);
 
         }
         
@@ -154,7 +154,7 @@ namespace BonusOkAPI.Controllers
         /// <returns></returns>
         // POST: api/ClientConroller/Promo/clientId=1
         [HttpPost("Promo")]
-        public async Task<ActionResult<PromoResponseWithImage>> AddClientsPromos([FromHeader(Name = "Authorization")]string JWT, PromoRequestWithImage promo, [FromQuery] int [] clientId)
+        public async Task<ActionResult<PromoResponseWithImage>> AddClientsPromos( PromoRequestWithImage promo, [FromQuery] int [] clientId)
         {
 
             var promoEntity = _mapper.Map<PromoRequestWithImage, Promo>(promo);

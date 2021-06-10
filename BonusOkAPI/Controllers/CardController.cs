@@ -74,7 +74,7 @@ namespace BonusOkAPI.Controllers
         public async Task<IActionResult> PutCard([FromHeader(Name = "Authorization")]string JWT, CardRequest card, int clientId)
         {
 
-            var client = RightCredentials(clientId).Result;
+            var client = await RightCredentials(clientId);
 
             if (client == null)
                 return BadRequest();
@@ -114,17 +114,17 @@ namespace BonusOkAPI.Controllers
         //[Authorize(Roles = Models.Client.Role)]
         public async Task<ActionResult<CardResponse>> PostCard([FromHeader(Name = "Authorization")]string JWT, CardRequest card, int clientId)
         {
-            var client = RightCredentials(clientId);
-            if (client.Result == null)
+            var client = await RightCredentials(clientId);
+            if (client == null)
                 return BadRequest();
-            client.Result.CardId = clientId;
+            client.CardId = clientId;
             var cardEntity = _mapper.Map<CardRequest, Card>(card);
             cardEntity.CardCode = Card.GenerateCode();
             _context.Cards.Add(cardEntity);
             _context.Entry(client).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetCard", new { id = client.Result.CardId }, _mapper.Map<Card, CardResponse>(cardEntity));
+            return CreatedAtAction("GetCard", new { id = client.CardId }, _mapper.Map<Card, CardResponse>(cardEntity));
         }
 
         // DELETE: api/Card/5
@@ -132,11 +132,11 @@ namespace BonusOkAPI.Controllers
         //[Authorize(Roles = Models.Client.Role)]
         public async Task<IActionResult> DeleteCard([FromHeader(Name = "Authorization")]string JWT, int clientId)
         {
-            var client = RightCredentials(clientId);
-            if (client.Result == null)
+            var client = await RightCredentials(clientId);
+            if (client == null)
                 return BadRequest();
             
-            var card = client.Result.Card;
+            var card = client.Card;
             if (card == null)
             {
                 return NotFound();
