@@ -27,8 +27,8 @@ namespace BonusOkAPI.Controllers
         /// <param name="charge"> Информация о клиенте и админе</param>
         /// <returns></returns>
         // POST: api/Admin/5/ChargeOff
-        [Authorize(Roles = Models.Client.Role)]
-        [HttpPost("ChargeOff/")]
+        //[Authorize(Roles = Models.Client.Role)]
+        [HttpPost("ChargeOff")]
         public async Task<ActionResult> ChargeOff([FromHeader(Name = "Authorization")]string JWT, Charge charge)
         {
             var admin = RightCredentials(charge.AdminId);
@@ -59,8 +59,8 @@ namespace BonusOkAPI.Controllers
         /// <param name="charge"> Информация о клиенте и админе</param>
         /// <returns></returns>
         // POST: api/Admin/5/ChargeOff
-        [Authorize(Roles = Models.Client.Role)]
-        [HttpPost("Award/")]
+        //[Authorize(Roles = Models.Client.Role)]
+        [HttpPost("Award")]
         public async Task<ActionResult> Award([FromHeader(Name = "Authorization")]string JWT, Charge charge)
         {
             var admin = RightCredentials(charge.AdminId);
@@ -83,7 +83,7 @@ namespace BonusOkAPI.Controllers
         private async Task<Client> RightCredentials(int clientId)
         {
             var client =  await _context.Clients
-                .FirstOrDefaultAsync(c => c.Phone == User.Identity.Name && c.Id == clientId);
+                .FirstOrDefaultAsync(c => /*c.Phone == User.Identity.Name &&*/ c.Id == clientId);
 
             return client;
         }
