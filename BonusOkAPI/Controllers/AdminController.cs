@@ -27,7 +27,7 @@ namespace BonusOkAPI.Controllers
         /// <param name="charge"> Информация о клиенте и админе</param>
         /// <returns></returns>
         // POST: api/Admin/5/ChargeOff
-        [Authorize(Roles = Models.Client.Role)]
+        //[Authorize(Roles = Models.Client.Role)]
         [HttpPost("ChargeOff")]
         public async Task<ActionResult> ChargeOff([FromHeader(Name = "Authorization")]string JWT, Charge charge)
         {
@@ -59,7 +59,7 @@ namespace BonusOkAPI.Controllers
         /// <param name="charge"> Информация о клиенте и админе</param>
         /// <returns></returns>
         // POST: api/Admin/5/ChargeOff
-        [Authorize(Roles = Models.Client.Role)]
+        //[Authorize(Roles = Models.Client.Role)]
         [HttpPost("Award")]
         public async Task<ActionResult> Award([FromHeader(Name = "Authorization")]string JWT, Charge charge)
         {
